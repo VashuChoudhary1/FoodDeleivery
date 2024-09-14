@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field, prefer_const_constructors
+
 import 'package:food_delievery_app/utils/app_constants.dart';
 import 'package:get/get.dart';
 

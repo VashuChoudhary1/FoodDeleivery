@@ -1,9 +1,15 @@
+// ignore_for_file: prefer_interpolation_to_compose_strings
+
 import 'package:dots_indicator/dots_indicator.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:food_delievery_app/controllers/popular_product_controleer.dart';
+import 'package:food_delievery_app/controllers/recommended_product_controller.dart';
 import 'package:food_delievery_app/models/products_model.dart';
+import 'package:food_delievery_app/pages/food/popular_food_detail.dart';
 import 'package:food_delievery_app/pages/home/AppColor.dart';
+import 'package:food_delievery_app/routes/route_helper.dart';
 import 'package:food_delievery_app/utils/app_constants.dart';
 import 'package:food_delievery_app/utils/dimensions.dart';
 import 'package:food_delievery_app/widgets/app_column.dart';
@@ -46,16 +52,21 @@ class _FoodPageBodyState extends State<FoodPageBody> {
       children: [
         //slider section
         GetBuilder<PopularProductController>(builder: (popularProducts) {
-          return Container(
-              height: Dimensions.pageView,
-              child: PageView.builder(
-                  controller: pageController,
-                  itemCount: popularProducts.popularProductList.length,
-                  itemBuilder: (context, position) {
-                    //we return this function as we want something that can be scrolled left and right and have some space arount it
-                    return _buildPageItem(
-                        position, popularProducts.popularProductList[position]);
-                  }));
+          return popularProducts.isLoaded
+              ? Container(
+                  height: Dimensions.pageView,
+                  child: PageView.builder(
+                      controller: pageController,
+                      itemCount: popularProducts.popularProductList.length,
+                      itemBuilder: (context, position) {
+                        //we return this function as we want something that can be scrolled left and right and have some space arount it
+                        return _buildPageItem(position,
+                            popularProducts.popularProductList[position]);
+                      }),
+                )
+              : CircularProgressIndicator(
+                  color: AppColors.mainColor,
+                );
         }),
         //dots
         GetBuilder<PopularProductController>(builder: (popularProducts) {
@@ -82,7 +93,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              BigText(text: "Popular"),
+              BigText(text: "Recommended"),
               SizedBox(
                 width: Dimensions.width10,
               ),
@@ -107,84 +118,106 @@ class _FoodPageBodyState extends State<FoodPageBody> {
           height: Dimensions.height30,
         ),
         //List of food and images
-        ListView.builder(
-            physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: 10,
-            itemBuilder: ((context, index) {
-              return Container(
-                margin: EdgeInsets.only(
-                    left: Dimensions.width20,
-                    right: Dimensions.width20,
-                    bottom: Dimensions.height10),
-                child: Row(
-                  children: [
-                    //for image with border we use container
-                    Container(
-                      width: Dimensions.listViewImgSize,
-                      height: Dimensions.listViewImgSize,
-                      decoration: BoxDecoration(
-                          borderRadius:
-                              BorderRadius.circular(Dimensions.radius20),
-                          color: Colors.white38,
-                          image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: AssetImage("assets/image/food4.jfif"))),
-                    ),
-                    //text container
-                    Expanded(
+        GetBuilder<RecommendedProductController>(builder: (recommendedProduct) {
+          return recommendedProduct.isLoaded
+              ? ListView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: recommendedProduct.recommendedProductList.length,
+                  itemBuilder: ((context, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        Get.toNamed(RouteHelper.getRecommendedFood(index));
+                      },
                       child: Container(
-                        height: Dimensions.listViewTextSize,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                              topRight: Radius.circular(Dimensions.radius20),
-                              bottomRight:
-                                  Radius.circular(Dimensions.radius20)),
-                          color: Colors.white,
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                              left: Dimensions.width10,
-                              right: Dimensions.width10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              BigText(text: "Fresh Vegetable Pizza in India"),
-                              SizedBox(
-                                height: Dimensions.height10,
+                        margin: EdgeInsets.only(
+                            left: Dimensions.width20,
+                            right: Dimensions.width20,
+                            bottom: Dimensions.height10),
+                        child: Row(
+                          children: [
+                            //for image with border we use container
+                            Container(
+                              width: Dimensions.listViewImgSize,
+                              height: Dimensions.listViewImgSize,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(
+                                      Dimensions.radius20),
+                                  color: Colors.white38,
+                                  image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: NetworkImage(
+                                          AppConstants.BASE_URL +
+                                              AppConstants.UPLOAD_URL +
+                                              recommendedProduct
+                                                  .recommendedProductList[index]
+                                                  .img!))),
+                            ),
+                            //text container
+                            Expanded(
+                              child: Container(
+                                height: Dimensions.listViewTextSize,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                      topRight:
+                                          Radius.circular(Dimensions.radius20),
+                                      bottomRight:
+                                          Radius.circular(Dimensions.radius20)),
+                                  color: Colors.white,
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                      left: Dimensions.width10,
+                                      right: Dimensions.width10),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      BigText(
+                                          text: recommendedProduct
+                                              .recommendedProductList[index]
+                                              .name!),
+                                      SizedBox(
+                                        height: Dimensions.height10,
+                                      ),
+                                      SmallText(
+                                          text: "With Indian Characteristics"),
+                                      SizedBox(
+                                        height: Dimensions.height10,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          IconAndTextWidget(
+                                              icon: Icons.circle_sharp,
+                                              text: "Normal",
+                                              iconColor: AppColors.iconColor1),
+                                          IconAndTextWidget(
+                                              icon: Icons.location_on,
+                                              text: "1.7 Km",
+                                              iconColor: AppColors.mainColor),
+                                          IconAndTextWidget(
+                                              icon: Icons.access_time_rounded,
+                                              text: "32 min",
+                                              iconColor: AppColors.iconColor2)
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                              SmallText(text: "With Indian Characteristics"),
-                              SizedBox(
-                                height: Dimensions.height10,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  IconAndTextWidget(
-                                      icon: Icons.circle_sharp,
-                                      text: "Normal",
-                                      iconColor: AppColors.iconColor1),
-                                  IconAndTextWidget(
-                                      icon: Icons.location_on,
-                                      text: "1.7 Km",
-                                      iconColor: AppColors.mainColor),
-                                  IconAndTextWidget(
-                                      icon: Icons.access_time_rounded,
-                                      text: "32 min",
-                                      iconColor: AppColors.iconColor2)
-                                ],
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            })),
+                    );
+                  }))
+              : CircularProgressIndicator(
+                  color: AppColors.mainColor,
+                );
+        })
       ],
     );
   }
@@ -218,18 +251,23 @@ class _FoodPageBodyState extends State<FoodPageBody> {
       transform: matrix,
       child: Stack(
         children: [
-          Container(
-            height: Dimensions.pageViewContainer,
-            margin: EdgeInsets.only(
-                left: Dimensions.width10, right: Dimensions.width10),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(Dimensions.radius30),
-                color: index.isEven ? Color(0xFF69c5df) : Color(0xFF9294cc),
-                image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: NetworkImage(AppConstants.BASE_URL +
-                        "/uploads/" +
-                        popularProduct.img!))),
+          GestureDetector(
+            onTap: () {
+              Get.toNamed(RouteHelper.getPopularFood(index));
+            },
+            child: Container(
+              height: Dimensions.pageViewContainer,
+              margin: EdgeInsets.only(
+                  left: Dimensions.width10, right: Dimensions.width10),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(Dimensions.radius30),
+                  color: index.isEven ? Color(0xFF69c5df) : Color(0xFF9294cc),
+                  image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(AppConstants.BASE_URL +
+                          AppConstants.UPLOAD_URL +
+                          popularProduct.img!))),
+            ),
           ),
           Align(
             alignment: Alignment.bottomCenter,
@@ -258,12 +296,12 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                   ]),
               child: Container(
                 padding: EdgeInsets.only(
-                  top: Dimensions.height15,
+                  top: Dimensions.height10,
                   left: Dimensions.width15,
                   right: Dimensions.width15,
                 ),
-                child: const AppColumn(
-                  text: "Indian Food",
+                child: AppColumn(
+                  text: popularProduct.name!,
                 ),
               ),
             ),

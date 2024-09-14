@@ -57,9 +57,9 @@ flutter:
   uses-material-design: true
 
   assets:
-    - E:\FoodDeleivery\food_delievery_app\assets\image\food1.jfif
-    - E:\FoodDeleivery\food_delievery_app\assets\image\food2.jfif
-    - E:\FoodDeleivery\food_delievery_app\assets\image\food3.jfif
-    - E:\FoodDeleivery\food_delievery_app\assets\image\food4.jfif
+    - E:\FoodDeleivery\food_delievery_app\assets\images\food.jpeg
+    - E:\FoodDeleivery\food_delievery_app\assets\images\food2.png
+    - E:\FoodDeleivery\food_delievery_app\assets\images\food3.png
+    - E:\FoodDeleivery\food_delievery_app\assets\images\food4.png  
 
  
