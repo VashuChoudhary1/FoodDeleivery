@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:food_delievery_app/controllers/cart_controller.dart';
 import 'package:food_delievery_app/controllers/popular_product_controleer.dart';
+import 'package:food_delievery_app/pages/cart/cart_page.dart';
 import 'package:food_delievery_app/pages/home/AppColor.dart';
 import 'package:food_delievery_app/pages/home/main_food_page.dart';
 import 'package:food_delievery_app/utils/app_constants.dart';
@@ -60,7 +61,42 @@ class PopularFoodDetail extends StatelessWidget {
                       Get.to(() => MainFoodPage());
                     },
                     child: AppIcon(icon: Icons.arrow_back_ios)),
-                AppIcon(icon: Icons.shopping_cart_outlined)
+                GetBuilder<PopularProductController>(builder: (controller) {
+                  return Stack(
+                    children: [
+                      AppIcon(icon: Icons.shopping_cart_outlined),
+                      Get.find<PopularProductController>().totalItems >= 1
+                          ? Positioned(
+                              right: 0,
+                              top: 0,
+                              child: GestureDetector(
+                                onTap: () {
+                                  Get.to(() => CartPage());
+                                },
+                                child: AppIcon(
+                                  icon: Icons.circle,
+                                  size: 20,
+                                  iconColor: Colors.transparent,
+                                  backgroundColor: AppColors.mainColor,
+                                ),
+                              ))
+                          : Container(),
+                      Get.find<PopularProductController>().totalItems >= 1
+                          ? Positioned(
+                              right: 3,
+                              top: 3,
+                              child: BigText(
+                                text: Get.find<PopularProductController>()
+                                    .totalItems
+                                    .toString(),
+                                size: 12,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Container()
+                    ],
+                  );
+                })
               ],
             ),
           ),
@@ -163,24 +199,25 @@ class PopularFoodDetail extends StatelessWidget {
                     ],
                   ),
                 ),
-                Container(
-                  padding: EdgeInsets.only(
-                      top: Dimensions.height20,
-                      bottom: Dimensions.height20,
-                      left: Dimensions.width20,
-                      right: Dimensions.width20),
-                  child: GestureDetector(
-                    onTap: () {
-                      popularProduct.addItem(product);
-                    },
+                GestureDetector(
+                  onTap: () {
+                    popularProduct.addItem(product);
+                  },
+                  child: Container(
+                    padding: EdgeInsets.only(
+                        top: Dimensions.height20,
+                        bottom: Dimensions.height20,
+                        left: Dimensions.width20,
+                        right: Dimensions.width20),
                     child: BigText(
                       text: "\$ ${product.price!} | Add to cart",
                       color: Colors.white,
                     ),
+                    decoration: BoxDecoration(
+                        borderRadius:
+                            BorderRadius.circular(Dimensions.radius20),
+                        color: AppColors.mainColor),
                   ),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(Dimensions.radius20),
-                      color: AppColors.mainColor),
                 )
               ],
             ),
